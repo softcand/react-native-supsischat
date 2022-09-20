@@ -1,0 +1,22 @@
+{
+  "name": "react-native-supsischat",
+  "version": "1.0.0",
+  "description": "React Native Supsis Chat",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/softcand/react-native-supsischat.git"
+  },
+  "keywords": [
+    "react-native-supsischat"
+  ],
+  "author": "Turgut Kurt",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/softcand/react-native-supsischat/issues"
+  },
+  "homepage": "https://github.com/softcand/react-native-supsischat#readme"
+}
