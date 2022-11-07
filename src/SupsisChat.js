@@ -1,60 +1,95 @@
-import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
+import React, { forwardRef, useImperativeHandle, useRef, useState } from "react";
+import { Pressable, SafeAreaView, StyleSheet, Text } from "react-native";
 import PropTypes from "prop-types";
-import React from "react";
 import WebView from "react-native-webview";
 
-const SupsisChat = (props) => {
-	const { domainName, btnContainerStyle, closeBtnPress, closeBtnStyle, commonTextStyle } = props;
+const SupsisChat = (props, ref) => {
+	const { domainName, children } = props;
 	let newUri = `https://${domainName}.visitor.supsis.live`;
-	const { Container, ChildrenContainer, ButtonContainer, CommonButton, CommonText } = styles;
-	return (
-		<SafeAreaView style={Container}>
-			<WebView
-				startInLoadingState={true}
-				source={{ uri: newUri }}
-				children={<View style={ChildrenContainer} />}
-			/>
-			<View style={[ButtonContainer, btnContainerStyle]}>
-				<TouchableOpacity
-					onPress={closeBtnPress}
-					style={[CommonButton, { backgroundColor: "red" }, closeBtnStyle]}
-				>
-					<Text style={[CommonText, commonTextStyle]}>Kapat</Text>
-				</TouchableOpacity>
-			</View>
-		</SafeAreaView>
-	);
+	const { Container, CloseBtn, CloseText } = styles;
+	const [visible, setVisible] = useState(false);
+
+	const viewRef = useRef();
+
+	const convertToString = (object) => {
+		let result = "{";
+		for (const key of Object.keys(object)) {
+			result += ` ${key}: "${object[key]}",`;
+		}
+		result = result.slice(0, result.length - 1);
+		result += " }";
+		return result;
+	};
+
+	const inject = (cmd, payload) => {
+		if (!viewRef.current) return;
+		viewRef.current.injectJavaScript(`
+				window.postMessage({
+					command: "${cmd}",
+					payload: ${payload},
+				});
+			`);
+	};
+
+	const setUserData = (payload) => {
+		inject("set-user-data", convertToString(payload));
+	};
+
+	const setDepartment = (payload) => {
+		inject("set-department", `"${payload}"`);
+	};
+
+	useImperativeHandle(ref, () => ({
+		setUserData,
+		setDepartment,
+		open: () => setVisible(true),
+		close: () => setVisible(false),
+	}));
+
+	if (visible)
+		return (
+			<SafeAreaView style={Container}>
+				<WebView
+					ref={viewRef}
+					startInLoadingState={true}
+					source={{ uri: "http://localvisitor-mobile.supsis.live?debug=mobile" /*TODO newUri olacak*/ }}
+				/>
+				<Pressable style={CloseBtn} onPress={() => setVisible(false)}>
+					<Text style={CloseText}>X</Text>
+				</Pressable>
+				{children}
+			</SafeAreaView>
+		);
+	return null;
 };
+
 const styles = StyleSheet.create({
-	Container: { flex: 1, backgroundColor: "white" },
-	ChildrenContainer: {
-		position: "absolute",
-		alignSelf: "center",
-		bottom: 0,
-		width: 200,
-		height: 50,
-		zIndex: 999,
-		backgroundColor: "rgba(255, 255, 255, 0.0)",
-	},
-	ButtonContainer: {
-		flexDirection: "row",
-		justifyContent: "flex-end",
+	Container: {
+		flex: 1,
 		backgroundColor: "white",
-		marginBottom: 10,
+		position: "absolute",
+		top: 0,
+		left: 0,
+		right: 0,
+		bottom: 0,
+		zIndex: Number.MAX_VALUE,
 	},
-	CommonButton: {
-		width: 80,
-		height: 35,
-		borderRadius: 10,
-		alignItems: "center",
-		justifyContent: "center",
-		marginHorizontal: 10,
+	CloseBtn: {
+		position: "absolute",
+		top: 2,
+		right: 8,
+		padding: 8,
 	},
-	CommonText: { color: "white", fontWeight: "bold", fontSize: 12 },
+	CloseText: {
+		color: "#fff",
+		fontWeight: "500",
+	},
 });
-SupsisChat.propTypes = {
+
+const Wrapper = forwardRef(SupsisChat);
+
+Wrapper.propTypes = {
 	domainName: PropTypes.string,
-	closeBtnPress: PropTypes.func,
 };
-export default SupsisChat;
+
+export default Wrapper;

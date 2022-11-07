@@ -18,5 +18,9 @@
   "bugs": {
     "url": "https://github.com/softcand/react-native-supsischat/issues"
   },
-  "homepage": "https://github.com/softcand/react-native-supsischat#readme"
+  "homepage": "https://github.com/softcand/react-native-supsischat#readme",
+  "dependencies": {
+    "prop-types": "^15.8.1",
+    "react-native-webview": "^11.23.1"
+  }
 }
