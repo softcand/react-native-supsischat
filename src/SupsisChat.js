@@ -52,7 +52,7 @@ const SupsisChat = (props, ref) => {
 				<WebView
 					ref={viewRef}
 					startInLoadingState={true}
-					source={{ uri: "http://localvisitor-mobile.supsis.live?debug=mobile" /*TODO newUri olacak*/ }}
+					source={{ uri: newUri }}
 				/>
 				<Pressable style={CloseBtn} onPress={() => setVisible(false)}>
 					<Text style={CloseText}>X</Text>
